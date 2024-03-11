@@ -1,0 +1,20 @@
+------Data is censored from raw1.txt file, below is the statistics of the censorions made in file------
+In total 81 names got censored.
+	The names that got censored are ['Germany', 'Japan', 'German', 'Japanese', 'European', 'Nazi', 'Adolf', 'Poland', 'France', 'Germany', 'Germany', 'Soviet', 'Poland', 'Finland', 'Estonia', 'Latvia', 'Lithuania', 'Romania', 'Germany', 'Europe', 'Italy', 'Japan', 'North', 'East', 'France', 'British', 'Balkans', 'Britain', 'Germany', 'Soviet', 'Japan', 'Asia', 'China', 'Japan', 'American', 'British', 'United', 'Japan', 'United', 'Japan', 'Midway', 'Germany', 'Italy', 'North', 'Soviet', 'German', 'Sicily', 'Italian', 'Allied', 'France', 'Soviet', 'Germany', 'Japan', 'Asia', 'Japanese', 'Europe', 'Germany', 'Soviet', 'Berlin', 'Soviet', 'Hitler', 'German', 'Japan', 'United', 'Japanese', 'Hiroshima', 'Nagasaki', 'Japanese', 'Soviet', 'Japan', 'Manchuria', 'Japan', 'Asia', 'France', 'Soviet', 'Soviet', 'United', 'European', 'Africa', 'Asia', 'Europe'] 
+In total 20 dates got censored.
+	The dates that got censored are {'8 May 1945', 'August 1939', '2 September 1945', 'the nearly half-century-long', '1944 and 1945', '1944', '22 June 1941', '6 August', '1943', '26 July 1945', 'December 1941', 'mid-1940', '9 August', '3 September', '1942', '1939 to 1945', '15 August', '1937', '1 September 1939', 'late 1939'} 
+In total 0 phone numbers got censored.
+	The phones that got censored are [] 
+In total 0 address/es got censored.
+	The address/es that got censored are [] 
+
+------Data is censored from raw2.txt file, below is the statistics of the censorions made in file------
+In total 4 names got censored.
+	The names that got censored are ['Hi', 'Biswas', 'Rocky', 'India'] 
+In total 0 dates got censored.
+	The dates that got censored are set() 
+In total 1 phone numbers got censored.
+	The phones that got censored are ['(800) 353 4940'] 
+In total 1 address/es got censored.
+	The address/es that got censored are ['660 Parrington Oval, Norman, OK 73019'] 
+
