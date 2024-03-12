@@ -3,7 +3,7 @@ import pytest
 from assignment1.main import Snorkel_Censor_Name
 
 testdata = [
-    ("My name is Jyotiraditya. Virat is my favorite player", "My name is ██████. █████████ is my favorite player", 2)
+    ("My name is Aditya Singh. James Lebron is my favorite player", "My name is ████████████. ████████████ is my favorite player", 2)
 ]
 
 
