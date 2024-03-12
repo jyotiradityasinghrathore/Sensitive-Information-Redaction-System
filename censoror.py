@@ -1,63 +1,64 @@
-import argparse
-import glob
 import sys
 import os
+import argparse
+import glob
 
 from assignment1.main import *
 
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-
+# The main function orchestrates the censoring process by reading raw data files,
+# applying censoring functions based on user arguments, outputting censored data, and generating statistics.
 def main(args):
-    # Getting list of input files
-    raw_files = []
-    for inp_glob in args.input:
-        raw_files += glob.glob(inp_glob)
+    # Gather a list of raw data files using glob
+    Raw_Data_Files = []
+    for Global_Input in args.input:
+        Raw_Data_Files += glob.glob(Global_Input)
 
-    # censoring each file
     final_stats = ""
-    for raw_file in raw_files:
-        print("Processing", raw_file, "==>")
+    # Process each raw data file
+    for raw_file in Raw_Data_Files:
+        print(" In Process", raw_file, "==>")
         data = ""
         try:
+            # Attempt to read the raw data file
             with open(raw_file, 'r') as f:
                 data = f.read()
         except:
-            print(f"{raw_file} file that is given can't be read, and so it can't be censored\n")
+            # Handle the case where the file cannot be read
+            print(f"{raw_file} file not able to read file\n")
             continue
         
-        #To count censored ones
+        # Initialize dictionaries to store censor counts and lists
         censor_counts = {}
-        #To collect censored quantities
         censor_list = {}
-        
 
+        # Apply date censoring if specified
+        if args.dates:
+            data, List_Dates = DatesCensor(data)
+            censor_counts["dates_count"] = len(List_Dates)
+            censor_list["List_Dates"] = List_Dates   
+
+        # Apply phone censoring if specified
+        if args.phones:
+            data, list_phones = PhoneCensor(data)
+            censor_counts["phones_count"] = len(list_phones)
+            censor_list["list_phones"] = list_phones
+
+        # Apply address censoring if specified
         if args.address:
-            data,List_Address = AddressCensor(data)
+            data, List_Address = AddressCensor(data)
             censor_counts["address_count"] = len(List_Address)
             censor_list["List_Address"] = List_Address
 
+        # Apply name censoring if specified
         if args.names:
             data, names_list = Snorkel_Censor_Name(data)
             censor_counts["names_count"] = len(names_list)
             censor_list["names_list"] = names_list
 
-        # if args.names_without_snorkel:
-        #     data, names_list = censor_names(data)
-        #     censor_counts["names_count"] = len(names_list)
-        #     censor_list["names_list"] = names_list
-
-        if args.dates:
-            data,List_Dates = DatesCensor(data)
-            censor_counts["dates_count"] = len(List_Dates)
-            censor_list["List_Dates"] = List_Dates
-
-        if args.phones:
-            data,list_phones = PhoneCensor(data)
-            censor_counts["phones_count"] = len(list_phones)
-            censor_list["list_phones"] = list_phones
-        
+        # Output the censored data to stdout, stderr, or file
         if args.output == 'stdout' or args.output == 'stderr':
             if args.output == 'stdout':
                 sys.stdout.write(data)
@@ -67,27 +68,32 @@ def main(args):
                 sys.stderr.write(data)
                 sys.stderr.write('\n')
         else:
-            write_censored_file(raw_file, args.output, data)
-        
+            Censored_File_Write(raw_file, args.output, data)
 
-        stats=censor_stats(args, censor_counts, censor_list)
-        final_stats += f"------Data is censored from {raw_file} file, below is the statistics of the censorions made in file------\n" + stats + "\n\n"
+        # Generate statistics on censoring and append to final_stats
+        stats = Stats_Censor(args, censor_counts, censor_list)
+        final_stats += f"- Censored data from {raw_file} file, statistics below from the file -\n" + stats + "\n\n"
 
+        # Output statistics to stdout, stderr, or file
         if args.stats == 'stdout':
-            sys.stdout.write("\n-----------Data is censored from file, below is the statistics of the censorions made in file---------------\n")
+            sys.stdout.write("\n- Censored Data from file, statistics below from the file -\n")
             sys.stdout.write(final_stats)
             sys.stdout.write('\n')
         
         if args.stats == 'stderr':
-            sys.stdout.write("\n-----------Data is censored from file, below is the statistics of the censorions made in file---------------\n")
+            sys.stdout.write("\n- Censored Data from file, statistics below from the file -\n")
             sys.stderr.write(final_stats)
             sys.stderr.write('\n')
         else:
-            write_to_files_stats(args.stats, final_stats)
+            Stats_File_Write(args.stats, final_stats)
 
+        # Reset final_stats for the next iteration
         final_stats = ""        
 
-def write_censored_file(input_file, output_dir, censored_text):
+
+# Writes the censored text to a file in the specified output directory,
+# creating the directory if it doesn't exist.
+def Censored_File_Write(input_file, output_dir, censored_text):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     output_file = os.path.join(output_dir, os.path.basename(input_file) + ".censored")
@@ -95,7 +101,8 @@ def write_censored_file(input_file, output_dir, censored_text):
         f.write(censored_text)   
 
 
-def write_to_files_stats(raw_file, stats):
+# Writes the statistics of censoring to a file, including the counts and lists of censored items.
+def Stats_File_Write(raw_file, stats):
     raw_file_path = os.path.join(os.getcwd(), raw_file)
 
     with open(raw_file_path, 'w') as f:
@@ -104,45 +111,39 @@ def write_to_files_stats(raw_file, stats):
     print(f"Stats to {raw_file_path}")
     print("\n")
 
-def censor_stats(args, censor_counts, censor_list):
-    stats_list = []
-    
-
-    # if vars(args)['names_without_snorkel']:
-    #     stats_list.append(f"In total {censor_counts['names_count']} names got censored.")
-    #     stats_list.append(f"\tThe names that got censored are {censor_list['names_list']} ")
+# Generates statistics based on the censoring counts and lists, 
+# and returns them as a formatted string for display or writing to a file.
+def Stats_Censor(args, censor_counts, censor_list):
+    List_Stats = []
     
     if vars(args)['names']:
-        stats_list.append(f"In total {censor_counts['names_count']} names got censored.")
-        stats_list.append(f"\tThe names that got censored are {censor_list['names_list']} ")
+        List_Stats.append(f"Total {censor_counts['names_count']} names got censored.")
+        List_Stats.append(f"\tCensored names are {censor_list['names_list']} ")
 
     if vars(args)['dates']:
-        stats_list.append(f"In total {censor_counts['dates_count']} dates got censored.")
-        stats_list.append(f"\tThe dates that got censored are {censor_list['List_Dates']} ")
+        List_Stats.append(f"Total {censor_counts['dates_count']} dates got censored.")
+        List_Stats.append(f"\tCensored dates are {censor_list['List_Dates']} ")
 
     if vars(args)['phones']:
-        stats_list.append(f"In total {censor_counts['phones_count']} phone numbers got censored.")
-        stats_list.append(f"\tThe phones that got censored are {censor_list['list_phones']} ")
+        List_Stats.append(f"Total {censor_counts['phones_count']} phone numbers got censored.")
+        List_Stats.append(f"\tCensored phone numbers are {censor_list['list_phones']} ")
 
     if vars(args)['address']:
-        stats_list.append(f"In total {censor_counts['address_count']} address/es got censored.")
-        stats_list.append(f"\tThe address/es that got censored are {censor_list['List_Address']} ")
+        List_Stats.append(f"Total {censor_counts['address_count']} address/es got censored.")
+        List_Stats.append(f"\tCensored addressess are {censor_list['List_Address']} ")
 
-    
-    return "\n".join(stats_list)
+    return "\n".join(List_Stats)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required = True, type = str, action = "append", help='input file is taken through this argument')
-    # parser.add_argument('--names_without_snorkel', action = "store_true", help='names from the input file gets censored')
-    parser.add_argument('--names', action = "store_true", help='names from the input file gets censored using snorkel')
-    parser.add_argument('--dates', action = "store_true", help='dates from the input files get censored')
-    parser.add_argument('--phones', action = "store_true", help='phone numbers from the input files get censored')
-    parser.add_argument('--address', action = "store_true", help='All_Address in the input files get censored')
-    parser.add_argument('--output',required = True, help='the printing format of input file output  is specified')
-    parser.add_argument('--stats', required = True, help='the printing format of input file summary is specified')
+    parser.add_argument('--input', required = True, type = str, action = "append", help='input file is from argument')
+    parser.add_argument('--names', action = "store_true", help='names censored using snorkel')
+    parser.add_argument('--dates', action = "store_true", help='dates censored from the input files')
+    parser.add_argument('--phones', action = "store_true", help='phone numbers censored from the input files')
+    parser.add_argument('--address', action = "store_true", help='All Address censored from the input files')
+    parser.add_argument('--output',required = True, help='the printing format specified')
+    parser.add_argument('--stats', required = True, help='the printing format specified')
 
     args = parser.parse_args()
-    
     
     main(args)

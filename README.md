@@ -54,6 +54,7 @@ This project aims to develop a system that automatically detects and censors sen
         - test_names.py
         - test_phones.py
         - test_address.py
+        - test_dates
 
 ## Files
 
@@ -69,13 +70,13 @@ This is the main function that orchestrates the censorship process. It takes com
 ### `write_to_files(raw_file, data)`
 This function writes the censored text data to a file in the specified output directory. It creates the output directory if it doesn't exist and handles subfolders within the output directory.
 
-### `write_censored_file(input_file, output_dir, censored_text)`
+### `Censored_File_Write(input_file, output_dir, censored_text)`
 This function writes the censored text to a file in the specified output directory. It constructs the path for the output file, creates the output directory if it doesn't exist, and writes the censored text to the output file.
 
-### `write_to_files_stats(raw_file, stats)`
+### `Stats_File_Write(raw_file, stats)`
 This function writes the statistics of the censorship process to a file. It takes the file path and statistics as input, writes the statistics to the file, and prints a message indicating where the statistics are saved.
 
-### `censor_stats(args, censor_counts, censor_list)`
+### `Stats_Censor(args, censor_counts, censor_list)`
 This function generates statistics regarding the censorship process based on the specified censoring options. It formats the statistics as a string and returns them.
 
 ### `censor_names(data)`

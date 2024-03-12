@@ -13,6 +13,8 @@ filterwarnings("ignore")
 #Load Spacy Model
 nlp = en_core_web_md.load()
 
+
+#This function censors phone numbers in the input data string and returns the censored string along with the list of original phone numbers.
 def PhoneCensor(data):
     data1 = CommonRegex(data)
     list_phones = data1.phones
@@ -22,6 +24,7 @@ def PhoneCensor(data):
 
     return data, list_phones
 
+#This function AddressCensor replaces addresses in the input data with black squares and returns the censored data along with a list of extracted addresses.
 def AddressCensor(data):
     List_Address = []
     All_Address = pyap.parse(data,country = 'US')
@@ -34,6 +37,7 @@ def AddressCensor(data):
 
     return data, List_Address
 
+#This DatesCensor function censors dates in the input data with black squares and returns the censored data along with a list of extracted dates.
 def DatesCensor(data):
     data1 = nlp(data)
     List_Dates_Ent = []
@@ -69,6 +73,7 @@ def Entity_Extract(text):
     Entity = [(ent.text, ent.label_) for ent in doc.ents]
     return Entity
 
+#Identifies if a title precedes a capitalized word, returning 1 if true, else 0.
 def Title_Capital_Name(x):
     Title = ['Mrs.', 'Mr.', 'Dr.', 'Prof.']
     Word = x.split()
@@ -77,6 +82,7 @@ def Title_Capital_Name(x):
             return 1  
     return 0 
 
+#Refines entities extracted from sentences based on labeling function criteria.
 def refine_with_snorkel(sentences, extract_entities_fn, labeling_fn):
     Entity_Refined = []
     for sentence in sentences:
@@ -87,12 +93,12 @@ def refine_with_snorkel(sentences, extract_entities_fn, labeling_fn):
                 Entity_Refined.append(entity)
     return Entity_Refined
 
+#Censors names in the input data using snorkel, returning the censored data and a list of extracted names.
 def Snorkel_Censor_Name(data):
     title_before_name_lf = LabelingFunction(
     name="title_before_capitalized_word",
     f=Title_Capital_Name
     )
-
     sentences = data.split('.')
     Entity_Refined = refine_with_snorkel(sentences, Entity_Extract, Title_Capital_Name)
     names_list = [entity[0] for entity in Entity_Refined]
