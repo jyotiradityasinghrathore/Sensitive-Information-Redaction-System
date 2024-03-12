@@ -81,13 +81,13 @@ This function generates statistics regarding the censorship process based on the
 ### `censor_names(data)`
 This function censors names in the text data. It tokenizes the text, identifies named entities using NLTK's part-of-speech tagging and named entity recognition, and replaces the identified names with a censor character. It also excludes certain common titles from the list of censored names.
 
-### `censor_dates(data)`
+### `DatesCensor(data)`
 This function censors dates in the text data. It uses spaCy to extract date entities and regular expressions to find date patterns in the text. It then replaces the identified dates with a censor character.
 
-### `censor_phones(data)`
+### `PhoneCensor(data)`
 This function censors phone numbers in the text data. It uses CommonRegex to identify phone number patterns in the text and replaces them with a censor character.
 
-### `censor_address(data)`
+### `AddressCensor(data)`
 This function censors addresses in the text data. It uses pyap (Python Address Parser) to parse and identify address patterns in the text. It then replaces the identified addresses with a censor character.
 
 ### `refine_with_snorkel(sentences, extract_entities_fn, labeling_fn)`
@@ -103,29 +103,29 @@ This function refines the process of censoring names using a snorkel labeling fu
 ## Test Function Descriptions
 
 #### test_address.py
-The provided code tests the `censor_address` function from `assignment1.main` using `pytest`. Test cases, stored in `testdata`, contain input texts, expected outputs, and censorship counts.
+The provided code tests the `AddressCensor` function from `assignment1.main` using `pytest`. Test cases, stored in `testdata`, contain input texts, expected outputs, and censorship counts.
 
-The `@pytest.mark.parametrize` decorator parametrizes the `test_word` function with test data for iterative execution. Within the function, `censor_address` is invoked, and its output is compared to expected results using assertions.
+The `@pytest.mark.parametrize` decorator parametrizes the `test_word` function with test data for iterative execution. Within the function, `AddressCensor` is invoked, and its output is compared to expected results using assertions.
 
 This test suite ensures the accurate censorship of addresses and returns expected outputs and counts.
 
 #### test_dates.py
-This script tests the `censor_dates` function from `main` using `pytest`. Test data in `testdata` includes input strings, expected outputs, and date counts.
+This script tests the `DatesCensor` function from `main` using `pytest`. Test data in `testdata` includes input strings, expected outputs, and date counts.
 
-Parametrizing `test_word` with `@pytest.mark.parametrize`, it enables repeated execution with diverse inputs. Within the function, `censor_dates` is invoked, and assertions compare its output to expected results.
+Parametrizing `test_word` with `@pytest.mark.parametrize`, it enables repeated execution with diverse inputs. Within the function, `DatesCensor` is invoked, and assertions compare its output to expected results.
 
-The unit test validates the `censor_dates` function's behavior across varying inputs.
+The unit test validates the `DatesCensor` function's behavior across varying inputs.
 
 #### test_names.py
-This code tests `censor_names_snorkel` from `assignment1.main` using `pytest`. A single test case in `testdata` contains input, expected output, and censored name counts.
+This code tests `Snorkel_Censor_Name` from `assignment1.main` using `pytest`. A single test case in `testdata` contains input, expected output, and censored name counts.
 
-Parametrizing `test_word`, the function iterates over test data. Within it, `censor_names_snorkel` is invoked, and assertions validate its output against expectations.
+Parametrizing `test_word`, the function iterates over test data. Within it, `Snorkel_Censor_Name` is invoked, and assertions validate its output against expectations.
 
-The unit test ensures the `censor_names_snorkel` function's reliability under diverse scenarios.
+The unit test ensures the `Snorkel_Censor_Name` function's reliability under diverse scenarios.
 
 #### test_phones.py
-This script tests `censor_phones` from `main.py` using `pytest`. Test data in `testdata` comprises input strings, expected outputs, and phone number counts.
+This script tests `PhoneCensor` from `main.py` using `pytest`. Test data in `testdata` comprises input strings, expected outputs, and phone number counts.
 
-`test_word` is parametrized with `@pytest.mark.parametrize` for multiple executions. Inside, `censor_phones` is called, and assertions verify its output and count.
+`test_word` is parametrized with `@pytest.mark.parametrize` for multiple executions. Inside, `PhoneCensor` is called, and assertions verify its output and count.
 
-The unit test confirms the accuracy of `censor_phones` across various inputs.
+The unit test confirms the accuracy of `PhoneCensor` across various inputs.

@@ -1,8 +1,8 @@
-import nltk
-from commonregex import CommonRegex
-import pyap
 import re
+import pyap
+import nltk
 import spacy
+from commonregex import CommonRegex
 from snorkel.labeling import LabelingFunction
 from spacy_download import load_spacy
 import en_core_web_md
@@ -10,102 +10,92 @@ import en_core_web_md
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-
-# nlp = load_spacy("en_core_web_md", exclude=["parser", "tagger"])
+#Load Spacy Model
 nlp = en_core_web_md.load()
-# nltk.download('wordnet', quiet=True)
-# nltk.download('averaged_perceptron_tagger', quiet=True)
-# nltk.download('maxent_ne_chunker', quiet=True)
-# nltk.download('words', quiet=True)
-# nltk.download('omw-1.4', quiet=True)
-# nltk.download('punkt', quiet=True)
 
-# def censor_names(data):
-#     words = nltk.word_tokenize(data)
-#     tag = nltk.pos_tag(words)
-#     tree = nltk.ne_chunk(tag)
-#     names_list = [ent[0][0] for ent in list(tree.subtrees()) if ent.label() in ['PERSON','GPE']]
-#     list_to_exclude = ['mr', 'ms', 'mrs','miss','mister','missus','maiden','sir','madam','madame','master','mistress','lady','ladies','gentleman','gentlemen','Hi', "Hey"]
-#     for i in list_to_exclude:
-#         if i in names_list:
-#             names_list.remove(i)
+def PhoneCensor(data):
+    data1 = CommonRegex(data)
+    list_phones = data1.phones
 
-#     for item in names_list:
-#         data = data.replace(item, '\u2588'* len(item))
+    for item in list_phones:
+        data = data.replace(item,'\u2588'* len(item))
 
-#     return data, names_list
+    return data, list_phones
 
-def censor_dates(data):
+def AddressCensor(data):
+    List_Address = []
+    All_Address = pyap.parse(data,country = 'US')
+
+    for address in All_Address:
+        S_Index = data.index(str(address).split(',')[0].strip())
+        E_Index = data.index(str(address).split(',')[-1].strip()) + len(str(address).split(',')[-1].strip())
+        List_Address.append(data[S_Index:E_Index])
+        data = data[:S_Index] + '\u2588'* len(str(address)) + data[E_Index:]
+
+    return data, List_Address
+
+def DatesCensor(data):
     data1 = nlp(data)
-    dates_ent_list = []
+    List_Dates_Ent = []
+
     for i in [ent.text.split('\n') for ent in data1.ents if ent.label_ == "DATE"]:
         for j in i:
-            dates_ent_list.append(j)
+            List_Dates_Ent.append(j)
+
     pattern = r'(\d{1,4}/\d{1,2}/\d{1,4})'
-    dates_re_list = re.findall(pattern,data)
-    dates_list = set(dates_ent_list + dates_re_list)
-    list_to_excluded = ["day", "tomorrow","yesterday","today","Day","Today","Tomorrow","century","weeks","week","Week","Weeks","week's","Week's","year", "Year","Year's","year's","month","Month","month's","Month's","months","Months"]
-    for i in list_to_excluded:
-        if i in dates_list:
-            dates_list.remove(i)
-    for items in dates_list:
+    List_Dates_Re = re.findall(pattern,data)
+    List_Dates = set(List_Dates_Ent + List_Dates_Re)
+    Excluded_List = [
+    "Year's", "weeks", "Week's", "day", "Year", "month's", "month", 
+    "Today", "yesterday", "Weeks", "century", "Year's", "today", 
+    "week", "Month", "Day", "Tomorrow", "Week", "months", "year's", 
+    "Months", "tomorrow", "Weeks", "week's", "Month's"
+    ]
+    for i in Excluded_List:
+        if i in List_Dates:
+            List_Dates.remove(i)
+            
+    for items in List_Dates:
         data = data.replace(items,'\u2588'* len(items))
-    return data,dates_list
-    
-def censor_phones(data):
-    data1 = CommonRegex(data)
-    phones_list = data1.phones
-    for item in phones_list:
-        data = data.replace(item,'\u2588'* len(item))
-    return data, phones_list
 
-def censor_address(data):
-    address_list = []
-    addresses = pyap.parse(data,country = 'US')
-    for address in addresses:
-        start_index = data.index(str(address).split(',')[0].strip())
-        end_index = data.index(str(address).split(',')[-1].strip()) + len(str(address).split(',')[-1].strip())
-        address_list.append(data[start_index:end_index])
-        data = data[:start_index] + '\u2588'* len(str(address)) + data[end_index:]
-    return data, address_list
+    return data,List_Dates
 
 
 
 
-# --------------------------name censoring using snorkel--------------------------------
-def extract_entities(text):
+# Snorker name censoring
+def Entity_Extract(text):
     doc = nlp(text)
-    entities = [(ent.text, ent.label_) for ent in doc.ents]
-    return entities
+    Entity = [(ent.text, ent.label_) for ent in doc.ents]
+    return Entity
 
-def lf_title_before_capitalized_word(x):
-    titles = ['Mr.', 'Mrs.', 'Dr.', 'Prof.']
-    words = x.split()
-    for i, word in enumerate(words[:-1]):  # Loop to the second-to-last word
-        if word in titles and words[i + 1][0].isupper():
-            return 1  # Potential name found
-    return 0  # No potential name found
+def Title_Capital_Name(x):
+    Title = ['Mrs.', 'Mr.', 'Dr.', 'Prof.']
+    Word = x.split()
+    for i, word in enumerate(Word[:-1]):
+        if word in Title and Word[i + 1][0].isupper():
+            return 1  
+    return 0 
 
 def refine_with_snorkel(sentences, extract_entities_fn, labeling_fn):
-    refined_entities = []
+    Entity_Refined = []
     for sentence in sentences:
-        entities = extract_entities_fn(sentence)
-        for entity in entities:
-            # Apply the labeling function to each entity; this is simplified
+        Entity = extract_entities_fn(sentence)
+        for entity in Entity:
             label = labeling_fn(entity[0])
             if label == 1 or entity[1] == 'PERSON':
-                refined_entities.append(entity)
-    return refined_entities
+                Entity_Refined.append(entity)
+    return Entity_Refined
 
-def censor_names_snorkel(data):
+def Snorkel_Censor_Name(data):
     title_before_name_lf = LabelingFunction(
     name="title_before_capitalized_word",
-    f=lf_title_before_capitalized_word
+    f=Title_Capital_Name
     )
 
     sentences = data.split('.')
-    refined_entities = refine_with_snorkel(sentences, extract_entities, lf_title_before_capitalized_word)
-    names_list = [entity[0] for entity in refined_entities]
+    Entity_Refined = refine_with_snorkel(sentences, Entity_Extract, Title_Capital_Name)
+    names_list = [entity[0] for entity in Entity_Refined]
     for item in names_list:
         data = data.replace(item, '\u2588'* len(item))
     return data, names_list

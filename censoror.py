@@ -34,12 +34,12 @@ def main(args):
         
 
         if args.address:
-            data,address_list = censor_address(data)
-            censor_counts["address_count"] = len(address_list)
-            censor_list["address_list"] = address_list
+            data,List_Address = AddressCensor(data)
+            censor_counts["address_count"] = len(List_Address)
+            censor_list["List_Address"] = List_Address
 
         if args.names:
-            data, names_list = censor_names_snorkel(data)
+            data, names_list = Snorkel_Censor_Name(data)
             censor_counts["names_count"] = len(names_list)
             censor_list["names_list"] = names_list
 
@@ -49,14 +49,14 @@ def main(args):
         #     censor_list["names_list"] = names_list
 
         if args.dates:
-            data,dates_list = censor_dates(data)
-            censor_counts["dates_count"] = len(dates_list)
-            censor_list["dates_list"] = dates_list
+            data,List_Dates = DatesCensor(data)
+            censor_counts["dates_count"] = len(List_Dates)
+            censor_list["List_Dates"] = List_Dates
 
         if args.phones:
-            data,phones_list = censor_phones(data)
-            censor_counts["phones_count"] = len(phones_list)
-            censor_list["phones_list"] = phones_list
+            data,list_phones = PhoneCensor(data)
+            censor_counts["phones_count"] = len(list_phones)
+            censor_list["list_phones"] = list_phones
         
         if args.output == 'stdout' or args.output == 'stderr':
             if args.output == 'stdout':
@@ -118,15 +118,15 @@ def censor_stats(args, censor_counts, censor_list):
 
     if vars(args)['dates']:
         stats_list.append(f"In total {censor_counts['dates_count']} dates got censored.")
-        stats_list.append(f"\tThe dates that got censored are {censor_list['dates_list']} ")
+        stats_list.append(f"\tThe dates that got censored are {censor_list['List_Dates']} ")
 
     if vars(args)['phones']:
         stats_list.append(f"In total {censor_counts['phones_count']} phone numbers got censored.")
-        stats_list.append(f"\tThe phones that got censored are {censor_list['phones_list']} ")
+        stats_list.append(f"\tThe phones that got censored are {censor_list['list_phones']} ")
 
     if vars(args)['address']:
         stats_list.append(f"In total {censor_counts['address_count']} address/es got censored.")
-        stats_list.append(f"\tThe address/es that got censored are {censor_list['address_list']} ")
+        stats_list.append(f"\tThe address/es that got censored are {censor_list['List_Address']} ")
 
     
     return "\n".join(stats_list)
@@ -138,7 +138,7 @@ if __name__=='__main__':
     parser.add_argument('--names', action = "store_true", help='names from the input file gets censored using snorkel')
     parser.add_argument('--dates', action = "store_true", help='dates from the input files get censored')
     parser.add_argument('--phones', action = "store_true", help='phone numbers from the input files get censored')
-    parser.add_argument('--address', action = "store_true", help='addresses in the input files get censored')
+    parser.add_argument('--address', action = "store_true", help='All_Address in the input files get censored')
     parser.add_argument('--output',required = True, help='the printing format of input file output  is specified')
     parser.add_argument('--stats', required = True, help='the printing format of input file summary is specified')
 

@@ -1,6 +1,6 @@
 import pytest
 
-from assignment1.main import censor_address
+from assignment1.main import AddressCensor
 
 testdata = [
     ("I use to live in 2000SW, apt 231, gainesville, Florida, 32605","I use to live in ██████████████████████████████████████████████",1),
@@ -10,6 +10,6 @@ testdata = [
 
 @pytest.mark.parametrize("input,expected_text,expected_count", testdata)
 def test_word(input, expected_text, expected_count):
-    actual_text, word_list = censor_address(input)
+    actual_text, word_list = AddressCensor(input)
     assert actual_text == expected_text
     assert len(word_list) == expected_count
