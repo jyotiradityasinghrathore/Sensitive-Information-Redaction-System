@@ -24,12 +24,7 @@ This project aims to develop a system that automatically detects and censors sen
     $ python
     $ import nltk
     $ import spacy
-    ```
-4. Install PyPDF2: 
-    PyPDF2 is a dependency for the project. You can install it using pipenv.
-    ```sh
-    $ pipenv install PyPDF2
-    ```    
+    ```   
 ## How to run
 1. To run the program, use the following command:
     ```sh
