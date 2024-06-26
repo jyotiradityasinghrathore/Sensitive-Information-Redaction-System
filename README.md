@@ -1,8 +1,6 @@
-# CIS6930SP24-ASSIGNMENT1
-
 ## Author: Jyotiraditya
 
-## Assignment Description:
+## Project Description:
 This project aims to develop a system that automatically detects and censors sensitive entities such as names, dates, phone numbers, and addresses in documents. By leveraging data pipelines and natural language processing techniques, the system streamlines the redaction process, enhances efficiency, and ensures compliance with privacy regulations. Through a command-line interface, users can specify input files, select entities to be censored, and define output directories. Additionally, the system generates statistics on the redaction process, providing transparency and accountability.
 
 ## How to Install:
